@@ -34,16 +34,13 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "jenkinsw",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short: "A simple and fast CLI to develop Jenkins pipelines on the command line",
+	Long: `Jenkinsw is a clean modern CLI that wraps the official Jenkins CLI
+to provide context-aware pipeline operations.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+CLI commands default to utilizing the current repository's branch and
+Jenkinsfile, making it simple and fast to develop Jenkinsfiles for multibranch
+pipelines.`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -62,6 +59,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
+	// rootCmd.PersistentFlags().StringP("host", "h", "", "Jenkins host URL")
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.jenkinsw.yaml)")
 
 	// Cobra also supports local flags, which will only run

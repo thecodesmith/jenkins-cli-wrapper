@@ -15,9 +15,13 @@ _A simple and fast CLI to develop Jenkins builds on the command line_
     jenkinsw [command] [options]
 
     Commands:
+      context  Configure multiple Jenkins servers and switch between them
+      help     Display help info for wrapper commands
       init     Download jenkins-cli.jar from Jenkins server and initialize API token
       lint     Lint a Declarative Jenkinsfile
-      replay   Replay a multibranch pipeline job
       logs     Display the logs for a multibranch pipeline job
+      replay   Replay a multibranch pipeline job
       version  Display version info for the Jenkins server, CLI and wrapper
-      help     Display help info for wrapper commands
+
+    jenkinsw lint  # runs declarative-linter on Jenkinsfile in current directory
+    jenkinsw lint -j foo/Jenkinsfile  # runs declarative-linter on Jenkinsfile specified by path
