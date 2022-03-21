@@ -52,18 +52,18 @@ func init() {
 }
 
 func lint() {
-    file := viper.Get("jenkinsfile")
-    fmt.Printf("Linting %s\n", file)
-    fmt.Println("Jenkins host URL:", viper.Get("host"))
+	file := viper.Get("jenkinsfile")
+	fmt.Printf("Linting %s\n", file)
+	fmt.Println("Jenkins host URL:", viper.Get("host"))
 
-    command := fmt.Sprintf("jenkins-cli declarative-linter < %s", file)
-    fmt.Println("Running command:", command)
+	command := fmt.Sprintf("jenkins-cli declarative-linter < %s", file)
+	fmt.Println("Running command:", command)
 
-    out, err := exec.Command("sh", "-c", command).CombinedOutput()
+	out, err := exec.Command("sh", "-c", command).CombinedOutput()
 
-    fmt.Printf("Result: %s\n", out)
+	fmt.Printf("Result: %s\n", out)
 
-    if err != nil {
-        log.Fatal(err)
-    }
+	if err != nil {
+		log.Fatal(err)
+	}
 }
