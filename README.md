@@ -4,11 +4,11 @@ _A simple and fast CLI to develop Jenkins builds on the command line_
 
 ## Features
 
-[ ] Repository-aware: project metadata enables seamless pipeline operations for multibranch pipelines
-[ ] Branch-aware pipeline replay and pipeline logs
-[ ] Replay uses Jenkinsfile in current directory
-[ ] Jenkinsfile linting: defaults to Jenkinsfile in current directory
-[ ] Open pipeline in browser
+- [ ] Repository-aware: project metadata enables seamless pipeline operations for multibranch pipelines
+- [ ] Branch-aware pipeline replay and pipeline logs
+- [ ] Replay uses Jenkinsfile in current directory
+- [ ] Jenkinsfile linting: defaults to Jenkinsfile in current directory
+- [ ] Open pipeline in browser
 
 ## Usage
 
