@@ -25,3 +25,9 @@ _A simple and fast CLI to develop Jenkins builds on the command line_
 
     jenkinsw lint  # runs declarative-linter on Jenkinsfile in current directory
     jenkinsw lint -j foo/Jenkinsfile  # runs declarative-linter on Jenkinsfile specified by path
+
+    jenkinsw context list
+    jenkinsw context add
+    > Jenkins host URL:
+    > Jenkins user:
+    > Jenkins API key:
