@@ -56,9 +56,15 @@ var contextAddCmd = &cobra.Command{
 		username, _ := prompt("Jenkins username: ")
 		apiToken, _ := prompt("Jenkins API token: ")
 
-		config := Config{}
+		config, err := ReadConfig()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
 		context := Context{name, host, username, apiToken}
 		config.Contexts = append(config.Contexts, context)
+		config.CurrentContext = name
 
 		y, err := yaml.Marshal(config)
 

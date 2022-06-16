@@ -32,7 +32,7 @@ import (
 
 type Config struct {
 	Contexts       []Context `json:"contexts"`
-	CurrentContext string `json:"current-context"`
+	CurrentContext string    `json:"current-context"`
 }
 
 type Context struct {
@@ -101,7 +101,10 @@ var contextCmd = &cobra.Command{
 	Short: "Manage Jenkins contexts",
 	Long:  `Manage multiple Jenkins contexts, including individual server URLs, usernames and API tokens.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("context called")
+		if len(args) == 0 {
+			cmd.Help()
+			os.Exit(0)
+		}
 	},
 }
 
