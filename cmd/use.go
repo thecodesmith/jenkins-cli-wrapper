@@ -28,33 +28,26 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// showCmd represents the show command
-var showCmd = &cobra.Command{
-	Use:   "show [context]",
-	Short: "Show details of a specific Jenkins context",
+// useCmd represents the use command
+var useCmd = &cobra.Command{
+	Use:   "use [context]",
+	Short: "Use a specific Jenkins context",
 	Long: `A longer description that spans multiple lines and likely contains examples
 to quickly create a Cobra application.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		context := args[0]
+
 		config, err := ReadConfig()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		context, err := config.GetCurrentContext()
-		if err != nil {
-			fmt.Println("Error:", err)
-			os.Exit(1)
-		}
-
-		fmt.Println("Context:", context.Name)
-		fmt.Println("Jenkins URL:", context.Host)
-		fmt.Println("Username:", context.Username)
-		fmt.Println("API Token:", context.ApiToken)
+		config.UseContext(context)
 	},
 }
 
 func init() {
-	contextCmd.AddCommand(showCmd)
+	contextCmd.AddCommand(useCmd)
 }

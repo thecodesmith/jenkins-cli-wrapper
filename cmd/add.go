@@ -26,9 +26,7 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"path/filepath"
 
-	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 )
 
@@ -66,28 +64,7 @@ var contextAddCmd = &cobra.Command{
 		config.Contexts = append(config.Contexts, context)
 		config.CurrentContext = name
 
-		y, err := yaml.Marshal(config)
-
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
-
-		dir := filepath.Join(homeDir, ConfigDir)
-
-		err = os.MkdirAll(dir, 0700)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
-
-		configFile := filepath.Join(dir, ConfigFile)
-		err = os.WriteFile(configFile, y, 0600)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
+		config.Save()
 	},
 }
 

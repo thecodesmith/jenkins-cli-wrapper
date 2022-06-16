@@ -67,6 +67,27 @@ func ReadConfig() (Config, error) {
 }
 
 func (c Config) Save() error {
+	y, err := yaml.Marshal(c)
+
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		fmt.Printf("Error: %s\n", err)
+		os.Exit(1)
+	}
+
+	dir := filepath.Join(homeDir, ConfigDir)
+
+	err = os.MkdirAll(dir, 0700)
+	if err != nil {
+		return fmt.Errorf("Error: %s\n", err)
+	}
+
+	configFile := filepath.Join(dir, ConfigFile)
+	err = os.WriteFile(configFile, y, 0600)
+	if err != nil {
+		return fmt.Errorf("Error: %s\n", err)
+	}
+
 	return nil
 }
 
@@ -96,10 +117,33 @@ func (c Config) AddContext(context Context) error {
 	return nil
 }
 
+func (c Config) UseContext(name string) error {
+	if !c.IsValidContext(name) {
+		return fmt.Errorf("Invalid context '%s'. Use 'jenkinsw context list' to view available contexts.")
+	}
+
+	c.CurrentContext = name
+
+	return c.Save()
+}
+
+func (c Config) IsValidContext(name string) bool {
+	valid := false
+
+	for _, ctx := range c.Contexts {
+		if ctx.Name == name {
+			valid = true
+		}
+	}
+
+	return valid
+}
+
 var contextCmd = &cobra.Command{
 	Use:   "context",
 	Short: "Manage Jenkins contexts",
 	Long:  `Manage multiple Jenkins contexts, including individual server URLs, usernames and API tokens.`,
+	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			cmd.Help()
