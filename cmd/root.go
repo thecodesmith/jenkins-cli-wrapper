@@ -29,6 +29,7 @@ import (
 	"github.com/spf13/viper"
 
 	"github.com/thecodesmith/jenkinsw/cmd/context"
+	"github.com/thecodesmith/jenkinsw/cmd/lint"
 )
 
 var cfgFile string
@@ -58,6 +59,7 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.AddCommand(context.ContextCmd)
+	rootCmd.AddCommand(lint.LintCmd)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,

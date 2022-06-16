@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package lint
 
 import (
 	"fmt"
@@ -30,8 +30,8 @@ import (
 	"github.com/spf13/viper"
 )
 
-// lintCmd represents the lint command
-var lintCmd = &cobra.Command{
+// LintCmd represents the lint command
+var LintCmd = &cobra.Command{
 	Use:   "lint",
 	Short: "Lint a Declarative Jenkinsfile",
 	Long: `Lint a Declarative Jenkinsfile.
@@ -44,10 +44,8 @@ Alternatively, provide the path to a Jenkinsfile elsewhere.`,
 }
 
 func init() {
-	rootCmd.AddCommand(lintCmd)
-
-	lintCmd.Flags().StringP("jenkinsfile", "j", "Jenkinsfile", "Path to Jenkinsfile")
-	viper.BindPFlag("jenkinsfile", lintCmd.Flags().Lookup("jenkinsfile"))
+	LintCmd.Flags().StringP("jenkinsfile", "j", "Jenkinsfile", "Path to Jenkinsfile")
+	viper.BindPFlag("jenkinsfile", LintCmd.Flags().Lookup("jenkinsfile"))
 	// viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
 }
 
