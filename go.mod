@@ -3,6 +3,7 @@ module github.com/thecodesmith/jenkinsw
 go 1.17
 
 require (
+	github.com/alecthomas/chroma/v2 v2.2.0
 	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/spf13/cobra v1.4.0
@@ -10,6 +11,7 @@ require (
 )
 
 require (
+	github.com/dlclark/regexp2 v1.4.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect

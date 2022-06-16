@@ -60,6 +60,7 @@ var listCmd = &cobra.Command{
 	Short: "List configured Jenkins contexts",
 	Long: `A longer description that spans multiple lines and likely contains examples
 to quickly create a Cobra application.`,
+	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		ListContexts()
 	},

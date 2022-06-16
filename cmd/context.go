@@ -118,8 +118,8 @@ func (c Config) AddContext(context Context) error {
 }
 
 func (c Config) UseContext(name string) error {
-	if !c.IsValidContext(name) {
-		return fmt.Errorf("Invalid context '%s'. Use 'jenkinsw context list' to view available contexts.")
+	if !c.IsExistingContext(name) {
+		return fmt.Errorf("No context named '%s'. Use 'jenkinsw context list' to view available contexts.", name)
 	}
 
 	c.CurrentContext = name
@@ -127,16 +127,16 @@ func (c Config) UseContext(name string) error {
 	return c.Save()
 }
 
-func (c Config) IsValidContext(name string) bool {
-	valid := false
+func (c Config) IsExistingContext(name string) bool {
+	exists := false
 
 	for _, ctx := range c.Contexts {
 		if ctx.Name == name {
-			valid = true
+			exists = true
 		}
 	}
 
-	return valid
+	return exists
 }
 
 var contextCmd = &cobra.Command{
