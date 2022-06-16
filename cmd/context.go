@@ -23,9 +23,78 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
+	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 )
+
+type Config struct {
+	Contexts       []Context `json:"contexts"`
+	CurrentContext string `json:"current-context"`
+}
+
+type Context struct {
+	Name     string `json:"name"`
+	Host     string `json:"host"`
+	Username string `json:"username"`
+	ApiToken string `json:"apiToken"`
+}
+
+const ConfigDir = ".jenkinsw"
+const ConfigFile = "config"
+
+func ReadConfig() (Config, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, err
+	}
+
+	f := filepath.Join(homeDir, ConfigDir, ConfigFile)
+	y, err := os.ReadFile(f)
+	if err != nil {
+		return Config{}, err
+	}
+
+	var config Config
+	err = yaml.Unmarshal(y, &config)
+	if err != nil {
+		return Config{}, err
+	}
+
+	return config, nil
+}
+
+func (c Config) Save() error {
+	return nil
+}
+
+func (c Config) GetCurrentContext() (Context, error) {
+	for _, ctx := range c.Contexts {
+		if ctx.Name == c.CurrentContext {
+			return ctx, nil
+		}
+	}
+
+	return Context{}, fmt.Errorf("Context named '%s' not found", c.CurrentContext)
+}
+
+func (c Config) AddContext(context Context) error {
+	for _, ctx := range c.Contexts {
+		if ctx.Name == context.Name {
+			return fmt.Errorf("Context named '%s' already exists", context.Name)
+		}
+	}
+
+	c.Contexts = append(c.Contexts, context)
+
+	if len(c.CurrentContext) < 1 {
+		c.CurrentContext = context.Name
+	}
+
+	return nil
+}
 
 var contextCmd = &cobra.Command{
 	Use:   "context",

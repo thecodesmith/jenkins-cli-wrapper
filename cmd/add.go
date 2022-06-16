@@ -32,21 +32,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Config struct {
-	Contexts       []Context `json:"contexts"`
-	CurrentContext string `json:"current-context"`
-}
-
-type Context struct {
-	Name     string `json:"name"`
-	Host     string `json:"host"`
-	Username string `json:"username"`
-	ApiToken string `json:"apiToken"`
-}
-
-const ConfigDir = ".jenkinsw"
-const ConfigFile = "config"
-
 var contextAddCmd = &cobra.Command{
 	Use:   "add",
 	Short: "Add a Jenkins context",

@@ -23,10 +23,8 @@ package cmd
 
 import (
 	"fmt"
-	"path/filepath"
 	"os"
 
-	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
 )
 
@@ -41,30 +39,22 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
-
-		f := filepath.Join(homeDir, ConfigDir, ConfigFile)
-		y, err := os.ReadFile(f)
+		config, err := ReadConfig()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		var config Context
-		err = yaml.Unmarshal(y, &config)
+		context, err := config.GetCurrentContext()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		fmt.Println("Context:", config.Name)
-		fmt.Println("Jenkins URL:", config.Host)
-		fmt.Println("Username:", config.Username)
-		fmt.Println("API Token:", config.ApiToken)
+		fmt.Println("Context:", context.Name)
+		fmt.Println("Jenkins URL:", context.Host)
+		fmt.Println("Username:", context.Username)
+		fmt.Println("API Token:", context.ApiToken)
 	},
 }
 
