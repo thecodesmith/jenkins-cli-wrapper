@@ -25,7 +25,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"path/filepath"
 
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/fatih/color"
@@ -33,14 +32,39 @@ import (
 )
 
 func PrintConfigDetails() error {
-	homeDir, err := os.UserHomeDir()
+	config, err := ReadConfig()
 	if err != nil {
 		return err
 	}
 
-	f := filepath.Join(homeDir, ConfigDir, ConfigFile)
+	context, err := config.GetCurrentContext()
+	if err != nil {
+		return err
+	}
+
+	f, err := config.GetConfigFile()
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Config files:")
 	fmt.Println("-", f)
+
+	fmt.Println()
+
+	cliExists := false
+	cliPath, err := context.GetCliPath()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(cliPath); err == nil {
+		cliExists = true
+	}
+
+	fmt.Println("Current context:", context.Name)
+	fmt.Println("CLI path:", cliPath)
+	fmt.Println("CLI exists:", cliExists)
 
 	y, err := os.ReadFile(f)
 	if err != nil {
@@ -67,7 +91,7 @@ func PrintYaml(s string) error {
 
 // debugCmd represents the debug command
 var debugCmd = &cobra.Command{
-	Use:   "debug",
+	Use:    "debug",
 	Hidden: true,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := PrintConfigDetails()

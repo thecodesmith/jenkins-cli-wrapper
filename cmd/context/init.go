@@ -25,47 +25,44 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 )
 
-func ListContexts() error {
-	config, err := ReadConfig()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-
-	current, err := config.GetCurrentContext()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-
-	for _, ctx := range config.Contexts {
-		if ctx.Name == current.Name {
-			fmt.Print("* ")
-			color.Green(ctx.Name)
-		} else {
-			fmt.Printf("  %s\n", ctx.Name)
-		}
-	}
-
-	return nil
-}
-
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List configured Jenkins contexts",
+// initCmd represents the init command
+var initCmd = &cobra.Command{
+	Use:   "init",
+	Short: "Download CLI jar from Jenkins server",
 	Long: `A longer description that spans multiple lines and likely contains examples
 to quickly create a Cobra application.`,
-	Args: cobra.NoArgs,
+	Args: cobra.MaximumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		ListContexts()
+		config, err := ReadConfig()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		var context Context
+
+		if len(args) == 1 {
+			context, err = config.GetContext(args[0])
+		} else {
+			context, err = config.GetCurrentContext()
+		}
+
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		err = context.DownloadCliJar()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
-	ContextCmd.AddCommand(listCmd)
+	ContextCmd.AddCommand(initCmd)
 }

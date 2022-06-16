@@ -23,7 +23,10 @@ package context
 
 import (
 	"fmt"
+	"io"
+	"net/http"
 	"os"
+	"strings"
 	"path/filepath"
 
 	"github.com/ghodss/yaml"
@@ -101,6 +104,16 @@ func (c Config) GetCurrentContext() (Context, error) {
 	return Context{}, fmt.Errorf("Context named '%s' not found", c.CurrentContext)
 }
 
+func (c Config) GetContext(name string) (Context, error) {
+	for _, ctx := range c.Contexts {
+		if ctx.Name == name {
+			return ctx, nil
+		}
+	}
+
+	return Context{}, fmt.Errorf("Context named '%s' not found", c.CurrentContext)
+}
+
 func (c Config) AddContext(context Context) error {
 	for _, ctx := range c.Contexts {
 		if ctx.Name == context.Name {
@@ -139,11 +152,95 @@ func (c Config) IsExistingContext(name string) bool {
 	return exists
 }
 
+func GetConfigDir() (string, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(homeDir, ConfigDir), nil
+}
+
+func (c Config) GetConfigFile() (string, error) {
+	path, err := GetConfigDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(path, ConfigFile), nil
+}
+
+func (c Context) DownloadCliJar() error {
+	jenkinsJarUrl := fmt.Sprintf("%s/jnlpJars/jenkins-cli.jar", c.Host)
+
+	dir, err := c.GetCliDir()
+	if err != nil {
+		return err
+	}
+
+	path, _ := c.GetCliPath()
+
+	fmt.Printf("Downloading Jenkins CLI from %s to %s\n", jenkinsJarUrl, path)
+
+	// Create CLI directory
+	if err = os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+
+	// Download CLI jar file from Jenkins host
+	return Download(path, jenkinsJarUrl)
+}
+
+func (c Context) GetCliDir() (string, error) {
+	r := strings.NewReplacer("://", "_", "/", "_", ":", "_")
+	hostDir := r.Replace(c.Host)
+
+	configDir, err := GetConfigDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(configDir, "cli", hostDir), nil
+}
+
+func (c Context) GetCliPath() (string, error) {
+	dir, err := c.GetCliDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, "cli.jar"), nil
+}
+
+func Download(filepath string, url string) (err error) {
+	out, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("request failed with status: %s", resp.Status)
+	}
+
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 var ContextCmd = &cobra.Command{
 	Use:   "context",
 	Short: "Manage Jenkins contexts",
 	Long:  `Manage multiple Jenkins contexts, including individual server URLs, usernames and API tokens.`,
-	Args: cobra.NoArgs,
+	Args:  cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
 		if len(args) == 0 {
 			cmd.Help()

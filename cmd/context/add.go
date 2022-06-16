@@ -23,8 +23,6 @@ package context
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -39,16 +37,6 @@ var contextAddCmd = &cobra.Command{
 		host, _ := prompt("Jenkins URL: ")
 
 		fmt.Println("name:", name)
-
-		jenkinsJarUrl := fmt.Sprintf("%s/jnlpJars/jenkins-cli.jar", host)
-		fmt.Printf("Downloading Jenkins CLI from %s\n", jenkinsJarUrl)
-
-		// Download CLI jar file from Jenkins host
-		err := download("cli.jar", jenkinsJarUrl)
-		if err != nil {
-			fmt.Printf("Error: %s\n", err)
-			os.Exit(1)
-		}
 
 		// Prompt for username + API token, store in secure file
 		username, _ := prompt("Jenkins username: ")
@@ -82,29 +70,4 @@ func prompt(text string) (string, error) {
 	}
 
 	return result, nil
-}
-
-func download(filepath string, url string) (err error) {
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("request failed with status: %s", resp.Status)
-	}
-
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
