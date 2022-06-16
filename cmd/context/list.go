@@ -19,65 +19,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package context
 
 import (
 	"fmt"
 	"os"
-	"strings"
-	"path/filepath"
 
-	"github.com/alecthomas/chroma/v2/quick"
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/fatih/color"
 )
 
-func PrintConfigDetails() error {
-	homeDir, err := os.UserHomeDir()
+func ListContexts() error {
+	config, err := ReadConfig()
 	if err != nil {
-		return err
+		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 
-	f := filepath.Join(homeDir, ConfigDir, ConfigFile)
-	fmt.Println("Config files:")
-	fmt.Println("-", f)
-
-	y, err := os.ReadFile(f)
+	current, err := config.GetCurrentContext()
 	if err != nil {
-		return err
+		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 
-	fmt.Println()
-
-	color.Set(color.FgWhite, color.Bold)
-	fmt.Printf("Contents of %s:\n", f)
-	color.Unset()
-	fmt.Println()
-	PrintYaml(string(y))
+	for _, ctx := range config.Contexts {
+		if ctx.Name == current.Name {
+			fmt.Print("* ")
+			color.Green(ctx.Name)
+		} else {
+			fmt.Printf("  %s\n", ctx.Name)
+		}
+	}
 
 	return nil
 }
 
-func PrintYaml(s string) error {
-	// Indent string block
-	s = fmt.Sprintf("    %s\n", strings.Replace(s, "\n", "\n    ", -1))
-
-	return quick.Highlight(os.Stdout, s, "yaml", "terminal256", "github")
-}
-
-// debugCmd represents the debug command
-var debugCmd = &cobra.Command{
-	Use:   "debug",
-	Hidden: true,
+// listCmd represents the list command
+var listCmd = &cobra.Command{
+	Use:   "list",
+	Short: "List configured Jenkins contexts",
+	Long: `A longer description that spans multiple lines and likely contains examples
+to quickly create a Cobra application.`,
+	Args: cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := PrintConfigDetails()
-		if err != nil {
-			fmt.Println("Error:", err)
-			os.Exit(1)
-		}
+		ListContexts()
 	},
 }
 
 func init() {
-	contextCmd.AddCommand(debugCmd)
+	ContextCmd.AddCommand(listCmd)
 }

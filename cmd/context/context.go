@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package cmd
+package context
 
 import (
 	"fmt"
@@ -139,7 +139,7 @@ func (c Config) IsExistingContext(name string) bool {
 	return exists
 }
 
-var contextCmd = &cobra.Command{
+var ContextCmd = &cobra.Command{
 	Use:   "context",
 	Short: "Manage Jenkins contexts",
 	Long:  `Manage multiple Jenkins contexts, including individual server URLs, usernames and API tokens.`,
@@ -150,8 +150,4 @@ var contextCmd = &cobra.Command{
 			os.Exit(0)
 		}
 	},
-}
-
-func init() {
-	rootCmd.AddCommand(contextCmd)
 }
