@@ -36,8 +36,6 @@ var contextAddCmd = &cobra.Command{
 		name, _ := prompt("Context name: ")
 		host, _ := prompt("Jenkins URL: ")
 
-		fmt.Println("name:", name)
-
 		// Prompt for username + API token, store in secure file
 		username, _ := prompt("Jenkins username: ")
 		apiToken, _ := prompt("Jenkins API token: ")
@@ -52,7 +50,17 @@ var contextAddCmd = &cobra.Command{
 		config.Contexts = append(config.Contexts, context)
 		config.CurrentContext = name
 
-		config.Save()
+		err = config.Save()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
+
+		err = context.SaveAuthFile()
+		if err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
 	},
 }
 

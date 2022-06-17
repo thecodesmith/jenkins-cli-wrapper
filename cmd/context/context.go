@@ -86,12 +86,8 @@ func (c Config) Save() error {
 	}
 
 	configFile := filepath.Join(dir, ConfigFile)
-	err = os.WriteFile(configFile, y, 0600)
-	if err != nil {
-		return fmt.Errorf("Error: %s\n", err)
-	}
 
-	return nil
+	return os.WriteFile(configFile, y, 0600)
 }
 
 func (c Config) GetCurrentContext() (Context, error) {
@@ -169,6 +165,15 @@ func (c Config) GetConfigFile() (string, error) {
 	return filepath.Join(path, ConfigFile), nil
 }
 
+func (c Config) GetCurrentCliPath() (string, error) {
+	ctx, err := c.GetCurrentContext()
+	if err != nil {
+		return "", err
+	}
+
+	return ctx.GetCliPath()
+}
+
 func (c Context) DownloadCliJar() error {
 	jenkinsJarUrl := fmt.Sprintf("%s/jnlpJars/jenkins-cli.jar", c.Host)
 
@@ -188,6 +193,45 @@ func (c Context) DownloadCliJar() error {
 
 	// Download CLI jar file from Jenkins host
 	return Download(path, jenkinsJarUrl)
+}
+
+func (c Context) GetAuthFile() (string, error) {
+	dir, err := c.GetContextDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, ".auth"), nil
+}
+
+func (c Context) GetContextDir() (string, error) {
+	dir, err := GetConfigDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, "context", c.Name), nil
+}
+
+func (c Context) SaveAuthFile() error {
+	dir, err := c.GetContextDir()
+	if err != nil {
+		return err
+	}
+
+	file, err := c.GetAuthFile()
+	if err != nil {
+		return err
+	}
+
+	// Create context directory in case it does not exist
+	if err = os.MkdirAll(dir, 0700); err != nil {
+		return err
+	}
+
+	auth := fmt.Sprintf("%s:%s", c.Username, c.ApiToken)
+
+	return os.WriteFile(file, []byte(auth), 0600)
 }
 
 func (c Context) GetCliDir() (string, error) {

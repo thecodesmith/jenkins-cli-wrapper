@@ -55,8 +55,7 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
-		err = context.DownloadCliJar()
-		if err != nil {
+		if err = context.DownloadCliJar(); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}

@@ -23,12 +23,16 @@ package lint
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"os/exec"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	"github.com/thecodesmith/jenkinsw/cmd/context"
 )
+
+var debugMode bool
 
 // LintCmd represents the lint command
 var LintCmd = &cobra.Command{
@@ -39,29 +43,62 @@ var LintCmd = &cobra.Command{
 Automatically lint the Jenkinsfile in the current directory.
 Alternatively, provide the path to a Jenkinsfile elsewhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lint()
+		if err := lint(); err != nil {
+			fmt.Println("Error:", err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
+	LintCmd.Flags().BoolVarP(&debugMode, "debug", "d", false, "Enable debug output")
 	LintCmd.Flags().StringP("jenkinsfile", "j", "Jenkinsfile", "Path to Jenkinsfile")
 	viper.BindPFlag("jenkinsfile", LintCmd.Flags().Lookup("jenkinsfile"))
 	// viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
 }
 
-func lint() {
-	file := viper.Get("jenkinsfile")
-	fmt.Printf("Linting %s\n", file)
-	fmt.Println("Jenkins host URL:", viper.Get("host"))
-
-	command := fmt.Sprintf("jenkins-cli declarative-linter < %s", file)
-	fmt.Println("Running command:", command)
-
-	out, err := exec.Command("sh", "-c", command).CombinedOutput()
-
-	fmt.Printf("Result: %s\n", out)
-
-	if err != nil {
-		log.Fatal(err)
+func debug(a ...any) {
+	if debugMode {
+		fmt.Println(a)
 	}
+}
+
+func lint() error {
+	jenkinsfile := viper.Get("jenkinsfile")
+	debug("Linting", jenkinsfile)
+
+	config, err := context.ReadConfig()
+	if err != nil {
+		return err
+	}
+
+	ctx, err := config.GetCurrentContext()
+	if err != nil {
+		return err
+	}
+
+	cli, err := ctx.GetCliPath()
+	if err != nil {
+		return err
+	}
+
+	authFile, err := ctx.GetAuthFile()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(authFile); err != nil {
+		return fmt.Errorf("Authentication file not present for context '%s'. Please run 'jenkinsw context add' again.", ctx.Name)
+	}
+
+	command := fmt.Sprintf("java -jar '%s' -s '%s' -auth '@%s' -webSocket declarative-linter < '%s'", cli, ctx.Host, authFile, jenkinsfile)
+
+	cmd := exec.Command("sh", "-c", command)
+
+	debug("Running command:", command)
+	out, err := cmd.CombinedOutput()
+
+	debug("Result:", string(out))
+
+	return err
 }
