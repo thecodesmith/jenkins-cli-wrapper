@@ -28,6 +28,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"github.com/fatih/color"
 
 	"github.com/thecodesmith/jenkinsw/cmd/context"
 )
@@ -44,7 +45,7 @@ Automatically lint the Jenkinsfile in the current directory.
 Alternatively, provide the path to a Jenkinsfile elsewhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := lint(); err != nil {
-			fmt.Println("Error:", err)
+			color.Red("Error: validation failed")
 			os.Exit(1)
 		}
 	},
@@ -97,6 +98,9 @@ func lint() error {
 
 	debug("Running command:", command)
 	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(string(out))
+	}
 
 	debug("Result:", string(out))
 
