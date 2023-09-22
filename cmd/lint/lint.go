@@ -26,9 +26,9 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/fatih/color"
 
 	"github.com/thecodesmith/jenkinsw/cmd/context"
 )

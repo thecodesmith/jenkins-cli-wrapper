@@ -26,8 +26,8 @@ import (
 	"io"
 	"net/http"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
