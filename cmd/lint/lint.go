@@ -45,7 +45,7 @@ Automatically lint the Jenkinsfile in the current directory.
 Alternatively, provide the path to a Jenkinsfile elsewhere.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := lint(); err != nil {
-			color.Red("Error: validation failed")
+			color.Red("Error: validation failed", err)
 			os.Exit(1)
 		}
 	},

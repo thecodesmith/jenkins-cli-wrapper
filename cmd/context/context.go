@@ -54,7 +54,29 @@ func ReadConfig() (Config, error) {
 		return Config{}, err
 	}
 
+	dir := filepath.Join(homeDir, ConfigDir)
+
+	if err := os.MkdirAll(dir, 0700); err != nil {
+		return Config{}, err
+	}
+
 	f := filepath.Join(homeDir, ConfigDir, ConfigFile)
+
+	if _, err := os.Stat(f); os.IsNotExist(err) {
+		fmt.Printf("Config file %s does not exist, creating it\n", f)
+		f2, err := os.Create(f)
+		if err != nil {
+			return Config{}, err
+		}
+
+		defer f2.Close()
+
+		err = os.Chmod(f, 0600)
+		if err != nil {
+			return Config{}, err
+		}
+	}
+
 	y, err := os.ReadFile(f)
 	if err != nil {
 		return Config{}, err
