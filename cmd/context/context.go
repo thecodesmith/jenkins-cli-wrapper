@@ -26,11 +26,14 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/spf13/cobra"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -300,6 +303,41 @@ func Download(filepath string, url string) (err error) {
 	}
 
 	return nil
+}
+
+func RunJenkinsCli(subcommand string) (out []byte, err error) {
+	config, err := ReadConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	ctx, err := config.GetCurrentContext()
+	if err != nil {
+		return nil, err
+	}
+
+	cli, err := ctx.GetCliPath()
+	if err != nil {
+		return nil, err
+	}
+
+	authFile, err := ctx.GetAuthFile()
+	if err != nil {
+		return nil, err
+	}
+
+	if _, err := os.Stat(authFile); err != nil {
+		return nil, fmt.Errorf("Authentication file not present for context '%s'. Please run 'jenkinsw context add' again.", ctx.Name)
+	}
+
+	command := fmt.Sprintf("java -jar '%s' -s '%s' -auth '@%s' -webSocket %s", cli, ctx.Host, authFile, subcommand)
+
+	cmd := exec.Command("sh", "-c", command)
+
+	log.Debug("Running command:", command)
+	out, err = cmd.CombinedOutput()
+
+	return out, err
 }
 
 var ContextCmd = &cobra.Command{

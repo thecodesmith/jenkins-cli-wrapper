@@ -32,8 +32,8 @@ import (
 var showCmd = &cobra.Command{
 	Use:   "show [context]",
 	Short: "Show details of a specific Jenkins context (default: current context)",
-	Long: `Show details of the specified Jenkins context. Defaults to showing the current context if none is specified.`,
-	Args: cobra.RangeArgs(0, 1),
+	Long:  `Show details of the specified Jenkins context. Defaults to showing the current context if none is specified.`,
+	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := ReadConfig()
 		if err != nil {

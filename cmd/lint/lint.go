@@ -24,11 +24,12 @@ package lint
 import (
 	"fmt"
 	"os"
-	"os/exec"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/thecodesmith/jenkinsw/cmd/context"
 )
@@ -66,43 +67,14 @@ func debug(a ...any) {
 
 func lint() error {
 	jenkinsfile := viper.Get("jenkinsfile")
-	debug("Linting", jenkinsfile)
+	log.Debug("Linting", jenkinsfile)
 
-	config, err := context.ReadConfig()
-	if err != nil {
-		return err
-	}
-
-	ctx, err := config.GetCurrentContext()
-	if err != nil {
-		return err
-	}
-
-	cli, err := ctx.GetCliPath()
-	if err != nil {
-		return err
-	}
-
-	authFile, err := ctx.GetAuthFile()
-	if err != nil {
-		return err
-	}
-
-	if _, err := os.Stat(authFile); err != nil {
-		return fmt.Errorf("Authentication file not present for context '%s'. Please run 'jenkinsw context add' again.", ctx.Name)
-	}
-
-	command := fmt.Sprintf("java -jar '%s' -s '%s' -auth '@%s' -webSocket declarative-linter < '%s'", cli, ctx.Host, authFile, jenkinsfile)
-
-	cmd := exec.Command("sh", "-c", command)
-
-	debug("Running command:", command)
-	out, err := cmd.CombinedOutput()
+	out, err := context.RunJenkinsCli(fmt.Sprintf("declarative-linter < '%s'", jenkinsfile))
 	if err != nil {
 		fmt.Println(string(out))
 	}
 
-	debug("Result:", string(out))
+	log.Debug("Result:", string(out))
 
 	return err
 }
