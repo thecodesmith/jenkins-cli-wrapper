@@ -31,3 +31,17 @@ _A simple and fast CLI to develop Jenkins builds on the command line_
     > Jenkins host URL:
     > Jenkins user:
     > Jenkins API key:
+
+## Development
+
+Install the Cobra CLI:
+
+    make setup
+
+Generate a new CLI command:
+
+    cobra-cli add <subcommand> -a '<your name>' -l mit --viper
+
+Generate a new CLI subcommand:
+
+    cobra-cli add <subcommand> -p <parent command> -a '<your name>' -l mit --viper

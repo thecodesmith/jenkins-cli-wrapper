@@ -16,5 +16,8 @@ jenkins-up:
 jenkins-down:
 	docker stop jenkins
 
+setup:
+	go install github.com/spf13/cobra-cli@v1.3.0
+
 clean:
 	rm -f jenkinsw
