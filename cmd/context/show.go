@@ -31,10 +31,9 @@ import (
 // showCmd represents the show command
 var showCmd = &cobra.Command{
 	Use:   "show [context]",
-	Short: "Show details of a specific Jenkins context",
-	Long: `A longer description that spans multiple lines and likely contains examples
-to quickly create a Cobra application.`,
-	Args: cobra.ExactArgs(1),
+	Short: "Show details of a specific Jenkins context (default: current context)",
+	Long: `Show details of the specified Jenkins context. Defaults to showing the current context if none is specified.`,
+	Args: cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
 		config, err := ReadConfig()
 		if err != nil {
@@ -42,7 +41,14 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
-		context, err := config.GetCurrentContext()
+		var context Context
+
+		if len(args) == 0 {
+			context, err = config.GetCurrentContext()
+		} else if len(args) == 1 {
+			context, err = config.GetContext(args[0])
+		}
+
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
