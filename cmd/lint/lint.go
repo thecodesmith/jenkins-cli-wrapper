@@ -31,7 +31,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/thecodesmith/jenkinsw/cmd/context"
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 var debugMode bool
@@ -56,20 +56,13 @@ func init() {
 	LintCmd.Flags().BoolVarP(&debugMode, "debug", "d", false, "Enable debug output")
 	LintCmd.Flags().StringP("jenkinsfile", "j", "Jenkinsfile", "Path to Jenkinsfile")
 	viper.BindPFlag("jenkinsfile", LintCmd.Flags().Lookup("jenkinsfile"))
-	// viper.BindPFlag("host", rootCmd.PersistentFlags().Lookup("host"))
-}
-
-func debug(a ...any) {
-	if debugMode {
-		fmt.Println(a)
-	}
 }
 
 func lint() error {
 	jenkinsfile := viper.Get("jenkinsfile")
 	log.Debug("Linting", jenkinsfile)
 
-	out, err := context.RunJenkinsCli(fmt.Sprintf("declarative-linter < '%s'", jenkinsfile))
+	out, err := config.RunJenkinsCli(fmt.Sprintf("declarative-linter < '%s'", jenkinsfile))
 	if err != nil {
 		fmt.Println(string(out))
 	}

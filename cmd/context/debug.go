@@ -29,20 +29,22 @@ import (
 	"github.com/alecthomas/chroma/v2/quick"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 func PrintConfigDetails() error {
-	config, err := ReadConfig()
+	cfg, err := config.ReadConfig()
 	if err != nil {
 		return err
 	}
 
-	context, err := config.GetCurrentContext()
+	context, err := cfg.GetCurrentContext()
 	if err != nil {
 		return err
 	}
 
-	f, err := config.GetConfigFile()
+	f, err := cfg.GetConfigFile()
 	if err != nil {
 		return err
 	}

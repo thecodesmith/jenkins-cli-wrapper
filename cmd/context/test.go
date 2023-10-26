@@ -29,13 +29,15 @@ import (
 	"github.com/spf13/cobra"
 
 	log "github.com/sirupsen/logrus"
+
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 // testCmd represents the test command
 var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Test connection to Jenkins",
-	Long: `Test the connection to Jenkins using the URL and credentials from the current context.`,
+	Long:  `Test the connection to Jenkins using the URL and credentials from the current context.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := test(); err != nil {
 			color.Red("Error: connection failed")
@@ -46,18 +48,18 @@ var testCmd = &cobra.Command{
 
 func test() error {
 	log.Debug("Testing connection")
-	config, err := ReadConfig()
+	cfg, err := config.ReadConfig()
 	if err != nil {
 		return err
 	}
 
-	ctx, err := config.GetCurrentContext()
+	ctx, err := cfg.GetCurrentContext()
 	if err != nil {
 		return err
 	}
 
 	fmt.Printf("Connecting to %s as user %s\n", ctx.Host, ctx.Username)
-	out, err := RunJenkinsCli(fmt.Sprintf("who-am-i"))
+	out, err := config.RunJenkinsCli(fmt.Sprintf("who-am-i"))
 	if err == nil {
 		fmt.Println("Success!")
 	} else {

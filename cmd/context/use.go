@@ -26,6 +26,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 // useCmd represents the use command
@@ -36,15 +38,15 @@ var useCmd = &cobra.Command{
 to quickly create a Cobra application.`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		context := args[0]
+		name := args[0]
 
-		config, err := ReadConfig()
+		cfg, err := config.ReadConfig()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		err = config.UseContext(context)
+		err = cfg.UseContext(name)
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)

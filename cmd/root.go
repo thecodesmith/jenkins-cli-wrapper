@@ -30,20 +30,29 @@ import (
 
 	"github.com/thecodesmith/jenkinsw/cmd/context"
 	"github.com/thecodesmith/jenkinsw/cmd/lint"
+	"github.com/thecodesmith/jenkinsw/pkg/utils"
 )
 
-var cfgFile string
+var (
+	cfgFile string
+	ioStreams utils.IOStreams // read and write to this stream
+)
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "jenkinsw",
-	Short: "A simple and fast CLI to develop Jenkins pipelines on the command line",
+	Version: "0.1.0",
+	Use:     "jenkinsw",
+	Short:   "A simple and fast CLI to develop Jenkins pipelines on the command line",
 	Long: `Jenkinsw is a clean modern CLI that wraps the official Jenkins CLI
 to provide context-aware pipeline operations.
 
 CLI commands default to utilizing the current repository's branch and
 Jenkinsfile, making it simple and fast to develop Jenkinsfiles for multibranch
 pipelines.`,
+	PreRun: func(cmd *cobra.Command, args []string) {
+		cmd.SetOut(ioStreams.Out)
+		cmd.SetErr(ioStreams.ErrOut)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

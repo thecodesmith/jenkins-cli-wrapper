@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 Brian Stewart
+Copyright © 2023 Brian Stewart
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,55 +19,58 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-package context
+package cmd
 
 import (
 	"fmt"
 	"os"
 
 	"github.com/fatih/color"
+	// log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-
 	config "github.com/thecodesmith/jenkinsw/pkg/config"
+	jenkins "github.com/thecodesmith/jenkinsw/pkg/jenkins"
 )
 
-func ListContexts() error {
-	cfg, err := config.ReadConfig()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-
-	current, err := cfg.GetCurrentContext()
-	if err != nil {
-		fmt.Println("Error:", err)
-		os.Exit(1)
-	}
-
-	for _, ctx := range cfg.Contexts {
-		if ctx.Name == current.Name {
-			fmt.Print("* ")
-			color.Green(ctx.Name)
-		} else {
-			fmt.Printf("  %s\n", ctx.Name)
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Display version info for the Jenkins server, CLI, and wrapper",
+	Long:  `Display the version info for the Jenkins server, Jenkins CLI, and Jenkins wrapper CLI.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		if err := printVersion(); err != nil {
+			color.Red("Error:", err)
+			os.Exit(1)
 		}
+	},
+}
+
+func printVersion() (err error) {
+	fmt.Printf("%s version: %s\n", rootCmd.Use, rootCmd.Version)
+	fmt.Println("")
+
+	ctx, err := config.GetCurrentContext()
+
+	if err != nil {
+		return err
 	}
+
+	fmt.Print("Jenkins server: ")
+	color.Blue(ctx.Host)
+	fmt.Print("  Jenkins server version: ")
+
+	client, err := jenkins.NewClient(&ctx, &ioStreams)
+	serverVersion := client.Version()
+	fmt.Println(serverVersion)
+
+	// fmt.Print("  Jenkins CLI jar version: ")
+	// cli, err := RunJenkinsCli("-version")
+	// if err != nil {
+	// 	log.Error(err)
+	// }
 
 	return nil
 }
 
-// listCmd represents the list command
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List configured Jenkins contexts",
-	Long: `A longer description that spans multiple lines and likely contains examples
-to quickly create a Cobra application.`,
-	Args: cobra.NoArgs,
-	Run: func(cmd *cobra.Command, args []string) {
-		ListContexts()
-	},
-}
-
 func init() {
-	ContextCmd.AddCommand(listCmd)
+	rootCmd.AddCommand(versionCmd)
 }

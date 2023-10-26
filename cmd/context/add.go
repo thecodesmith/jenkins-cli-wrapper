@@ -26,6 +26,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 var contextAddCmd = &cobra.Command{
@@ -40,17 +42,17 @@ var contextAddCmd = &cobra.Command{
 		username, _ := prompt("Jenkins username: ")
 		apiToken, _ := prompt("Jenkins API token: ")
 
-		config, err := ReadConfig()
+		cfg, err := config.ReadConfig()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		context := Context{name, host, username, apiToken}
-		config.Contexts = append(config.Contexts, context)
-		config.CurrentContext = name
+		context := config.Context{name, host, username, apiToken}
+		cfg.Contexts = append(cfg.Contexts, context)
+		cfg.CurrentContext = name
 
-		err = config.Save()
+		err = cfg.Save()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)

@@ -26,6 +26,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+
+	config "github.com/thecodesmith/jenkinsw/pkg/config"
 )
 
 // showCmd represents the show command
@@ -35,18 +37,18 @@ var showCmd = &cobra.Command{
 	Long:  `Show details of the specified Jenkins context. Defaults to showing the current context if none is specified.`,
 	Args:  cobra.RangeArgs(0, 1),
 	Run: func(cmd *cobra.Command, args []string) {
-		config, err := ReadConfig()
+		cfg, err := config.ReadConfig()
 		if err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}
 
-		var context Context
+		var context config.Context
 
 		if len(args) == 0 {
-			context, err = config.GetCurrentContext()
+			context, err = cfg.GetCurrentContext()
 		} else if len(args) == 1 {
-			context, err = config.GetContext(args[0])
+			context, err = cfg.GetContext(args[0])
 		}
 
 		if err != nil {
