@@ -23,16 +23,10 @@ package context
 
 import (
 	"fmt"
-	"io"
-	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/ghodss/yaml"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type Config struct {
@@ -195,37 +189,8 @@ func (c Config) GetConfigFile() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return filepath.Join(path, ConfigFile), nil
-}
-
-func (c Config) GetCurrentCliPath() (string, error) {
-	ctx, err := c.GetCurrentContext()
-	if err != nil {
-		return "", err
-	}
-
-	return ctx.GetCliPath()
-}
-
-func (c Context) DownloadCliJar() error {
-	jenkinsJarUrl := fmt.Sprintf("%s/jnlpJars/jenkins-cli.jar", c.Host)
-
-	dir, err := c.GetCliDir()
-	if err != nil {
-		return err
-	}
-
-	path, _ := c.GetCliPath()
-
-	fmt.Printf("Downloading Jenkins CLI from %s to %s\n", jenkinsJarUrl, path)
-
-	// Create CLI directory
-	if err = os.MkdirAll(dir, 0700); err != nil {
-		return err
-	}
-
-	// Download CLI jar file from Jenkins host
-	return Download(path, jenkinsJarUrl)
 }
 
 func (c Context) GetAuthFile() (string, error) {
@@ -265,80 +230,4 @@ func (c Context) SaveAuthFile() error {
 	auth := fmt.Sprintf("%s:%s", c.Username, c.ApiToken)
 
 	return os.WriteFile(file, []byte(auth), 0600)
-}
-
-func (c Context) GetCliDir() (string, error) {
-	r := strings.NewReplacer("://", "_", "/", "_", ":", "_")
-	hostDir := r.Replace(c.Host)
-
-	configDir, err := GetConfigDir()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(configDir, "cli", hostDir), nil
-}
-
-func (c Context) GetCliPath() (string, error) {
-	dir, err := c.GetCliDir()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(dir, "cli.jar"), nil
-}
-
-func Download(filepath string, url string) (err error) {
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	resp, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("request failed with status: %s", resp.Status)
-	}
-
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func RunJenkinsCli(subcommand string) (out []byte, err error) {
-	ctx, err := GetCurrentContext()
-	if err != nil {
-		return nil, err
-	}
-
-	cli, err := ctx.GetCliPath()
-	if err != nil {
-		return nil, err
-	}
-
-	authFile, err := ctx.GetAuthFile()
-	if err != nil {
-		return nil, err
-	}
-
-	if _, err := os.Stat(authFile); err != nil {
-		return nil, fmt.Errorf("Authentication file not present for context '%s'. Please run 'jenkinsw context add' again.", ctx.Name)
-	}
-
-	command := fmt.Sprintf("java -jar '%s' -s '%s' -auth '@%s' -webSocket %s", cli, ctx.Host, authFile, subcommand)
-
-	cmd := exec.Command("sh", "-c", command)
-
-	log.Debug("Running command:", command)
-	out, err = cmd.CombinedOutput()
-
-	return out, err
 }

@@ -28,6 +28,7 @@ import (
 	"github.com/spf13/cobra"
 
 	config "github.com/thecodesmith/jenkinsw/pkg/config"
+	"github.com/thecodesmith/jenkinsw/pkg/jenkins"
 )
 
 // initCmd represents the init command
@@ -57,7 +58,9 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
-		if err = context.DownloadCliJar(); err != nil {
+		cli := jenkins.NewJenkinsCli(&context)
+
+		if err = cli.DownloadCliJar(); err != nil {
 			fmt.Println("Error:", err)
 			os.Exit(1)
 		}

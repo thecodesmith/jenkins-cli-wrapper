@@ -56,17 +56,17 @@ func printVersion() (err error) {
 
 	fmt.Print("Jenkins server: ")
 	color.Blue(ctx.Host)
-	fmt.Print("  Jenkins server version: ")
 
+	fmt.Print("  Jenkins server version: ")
 	client, err := jenkins.NewClient(&ctx, &ioStreams)
 	serverVersion := client.Version()
 	fmt.Println(serverVersion)
 
-	// fmt.Print("  Jenkins CLI jar version: ")
-	// cli, err := RunJenkinsCli("-version")
-	// if err != nil {
-	// 	log.Error(err)
-	// }
+
+	fmt.Print("  Jenkins CLI jar version: ")
+	cli := jenkins.NewJenkinsCli(&ctx)
+	cliVersion, err := cli.Version()
+	fmt.Println(cliVersion)
 
 	return nil
 }

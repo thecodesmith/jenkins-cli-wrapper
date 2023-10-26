@@ -31,6 +31,7 @@ import (
 	"github.com/spf13/cobra"
 
 	config "github.com/thecodesmith/jenkinsw/pkg/config"
+	"github.com/thecodesmith/jenkinsw/pkg/jenkins"
 )
 
 func PrintConfigDetails() error {
@@ -55,7 +56,8 @@ func PrintConfigDetails() error {
 	fmt.Println()
 
 	cliExists := false
-	cliPath, err := context.GetCliPath()
+	cli := jenkins.NewJenkinsCli(&context)
+	cliPath, err := cli.GetCliPath()
 	if err != nil {
 		return err
 	}

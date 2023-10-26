@@ -31,6 +31,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	config "github.com/thecodesmith/jenkinsw/pkg/config"
+	"github.com/thecodesmith/jenkinsw/pkg/jenkins"
 )
 
 // testCmd represents the test command
@@ -58,8 +59,13 @@ func test() error {
 		return err
 	}
 
+	cli := jenkins.NewJenkinsCli(&ctx)
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("Connecting to %s as user %s\n", ctx.Host, ctx.Username)
-	out, err := config.RunJenkinsCli(fmt.Sprintf("who-am-i"))
+	out, err := cli.RunCommand("who-am-i")
 	if err == nil {
 		fmt.Println("Success!")
 	} else {

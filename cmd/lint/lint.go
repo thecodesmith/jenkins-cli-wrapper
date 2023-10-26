@@ -32,6 +32,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	config "github.com/thecodesmith/jenkinsw/pkg/config"
+	"github.com/thecodesmith/jenkinsw/pkg/jenkins"
 )
 
 var debugMode bool
@@ -62,7 +63,14 @@ func lint() error {
 	jenkinsfile := viper.Get("jenkinsfile")
 	log.Debug("Linting", jenkinsfile)
 
-	out, err := config.RunJenkinsCli(fmt.Sprintf("declarative-linter < '%s'", jenkinsfile))
+	ctx, err := config.GetCurrentContext()
+	if err != nil {
+		return err
+	}
+
+	cli := jenkins.NewJenkinsCli(&ctx)
+
+	out, err := cli.RunCommand(fmt.Sprintf("declarative-linter < '%s'", jenkinsfile))
 	if err != nil {
 		fmt.Println(string(out))
 	}
